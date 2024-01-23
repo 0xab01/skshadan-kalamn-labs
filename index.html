@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', Newake DEMO;
+            text-align: center;
+        }
+
+        #certificateCanvas {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+
+        #downloadButton {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Certificate Generator</h1>
+    <form id="certificateForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required>
+
+        <label for="class">Class:</label>
+        <input type="text" id="class" required>
+
+        <button type="button" onclick="generateCertificate()">Generate Certificate</button>
+    </form>
+
+    <canvas id="certificateCanvas" style="display: none;"></canvas>
+
+    <button id="downloadButton" onclick="downloadCertificate()" disabled>Download Certificate</button>
+
+    <script>
+        function calculateOptimalFontSize(text, maxWidth) {
+            let fontSize = 50; // Default font size
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            do {
+                ctx.font = `bold ${fontSize}px "Newake DEMO"`;
+                const textWidth = ctx.measureText(text).width;
+
+                if (textWidth <= maxWidth) {
+                    break;
+                }
+
+                fontSize--;
+            } while (fontSize > 0);
+
+            return fontSize;
+        }
+
+        function generateCertificate() {
+            const name = document.getElementById('name').value;
+            const className = document.getElementById('class').value;
+
+            // Load certificate image
+            const certificateImage = new Image();
+            certificateImage.onload = function () {
+                // Create a canvas to draw on
+                const canvas = document.getElementById('certificateCanvas');
+                const ctx = canvas.getContext('2d');
+
+                // Set canvas size to match the image size
+                canvas.width = certificateImage.width;
+                canvas.height = certificateImage.height;
+
+                // Draw the certificate image
+                ctx.drawImage(certificateImage, 0, 0);
+
+                // Customize certificate text
+                ctx.fillStyle = '#d6d6ff';
+
+                // Adjust font size based on the length of the name
+                const optimalFontSize = calculateOptimalFontSize(name, 200); // 200 is the max width you want to allow
+                ctx.font = `bold ${optimalFontSize}px "Newake DEMO"`;
+
+                // Draw the name and class
+                ctx.fillText(name, 750, 550);
+                ctx.fillText(className, 780, 700);
+
+                // Display the canvas
+                canvas.style.display = 'block';
+
+                // Enable download button
+                document.getElementById('downloadButton').disabled = false;
+            };
+
+            // Set the source of the certificate image
+            certificateImage.src = 'png.jpeg';  // Update with your certificate image URL
+        }
+
+        function downloadCertificate() {
+            const canvas = document.getElementById('certificateCanvas');
+            const downloadButton = document.getElementById('downloadButton');
+
+            // Convert canvas to data URL and trigger download
+            const dataUrl = canvas.toDataURL();
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = 'certificate_generated.png';
+            link.click();
+
+            // Hide canvas and disable download button
+            canvas.style.display = 'none';
+            downloadButton.disabled = true;
+        }
+    </script>
+</body>
+</html>
